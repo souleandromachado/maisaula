@@ -6,7 +6,7 @@ import axios from 'axios';
 import { AuthContext } from './authContext';
 
 // ⬇️ Substitua pelo IP do seu backend local
-const API_URL = 'http://192.168.0.121:3000';
+const API_URL = 'https://resumo-service-gz31.onrender.com/';
 
 export default function CriarQuizScreen({ navigation }) {
   const { usuarioLogado, setIsLogado } = useContext(AuthContext);
