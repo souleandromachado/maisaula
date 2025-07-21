@@ -7,11 +7,11 @@ export async function fetchResumos() {
 }
 
 // CRIAR RESUMO
-export async function createResumo({ titulo, conteudo, materia }) {
+export async function createResumo({ tema }) {
   const res = await fetch(`${API_URL}/resumos`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ titulo, conteudo, materia }),
+    body: JSON.stringify({ tema }),
   });
 
   if (!res.ok) {
