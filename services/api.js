@@ -1,6 +1,4 @@
 const API_URL = 'https://resumo-service-gz31.onrender.com'; // troque pelo IP local se testar no celular
-const cors = require('cors');
-app.use(cors());
 
 // LISTAR RESUMOS
 export async function fetchResumos() {
