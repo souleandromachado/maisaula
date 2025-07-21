@@ -45,7 +45,7 @@ cp .env .env
 
 ```js
 // Exemplo em src/config.js
-export const API_URL = 'https://resumo-service-gz31.onrender.com/';
+export const API_URL = 'https://resumo-service-gz31.onrender.com';
 ```
 
 > 💡 No terminal da máquina com o backend, digite `ipconfig` (Windows) ou `ifconfig` (Linux/macOS) para encontrar o **endereço IPv4 local**.

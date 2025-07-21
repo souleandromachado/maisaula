@@ -15,7 +15,7 @@ import { AuthContext } from './authContext';
 import { useRoute } from '@react-navigation/native';
 
 // Substitua pelo IP ou URL do seu backend
-const API_URL = 'https://resumo-service-gz31.onrender.com/';
+const API_URL = 'https://resumo-service-gz31.onrender.com';
 
 export default function HomeScreen({ navigation }) {
   const [posts, setPosts] = useState([]);

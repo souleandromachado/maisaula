@@ -1,1 +1,1 @@
-export const API_URL = 'https://resumo-service-gz31.onrender.com/';
+export const API_URL = 'https://resumo-service-gz31.onrender.com';
