@@ -1,0 +1,30 @@
+{
+  "expo": {
+    "name": "fiapito-mobile",
+    "slug": "snack-a49cc354-a134-4163-857e-9c61b602bebc",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "icon": "./assets/icon.png",
+    "userInterfaceStyle": "light",
+    "newArchEnabled": true,
+    "splash": {
+      "image": "./assets/splash-icon.png",
+      "resizeMode": "contain",
+      "backgroundColor": "#ffffff"
+    },
+    "ios": {
+      "supportsTablet": true
+    },
+    "android": {
+      "adaptiveIcon": {
+        "foregroundImage": "./assets/adaptive-icon.png",
+        "backgroundColor": "#ffffff"
+      },
+      "edgeToEdgeEnabled": true,
+      "package": "com.anonymous.snacka49cc354a1344163857e9c61b602bebc"
+    },
+    "web": {
+      "favicon": "./assets/favicon.png"
+    }
+  }
+}
