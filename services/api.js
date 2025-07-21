@@ -1,4 +1,4 @@
-const API_URL = 'http://SEU_IP_LOCAL:3000'; // troque pelo IP local se testar no celular
+const API_URL = 'https://resumo-service-gz31.onrender.com'; // troque pelo IP local se testar no celular
 
 // LISTAR RESUMOS
 export async function fetchResumos() {
