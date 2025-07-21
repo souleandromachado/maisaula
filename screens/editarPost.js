@@ -11,7 +11,7 @@ const EditarPost = ({ route, navigation }) => {
 
   const salvarEdicao = async () => {
     try {
-      await axios.put(`${API_URL}/posts/${id}`, {
+      await axios.put(`${API_URL}/resumos/${id}`, {
         titulo: novoTitulo,
         conteudo: novoConteudo,
         materia,
