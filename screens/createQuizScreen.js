@@ -56,12 +56,8 @@ export default function CriarQuizScreen({ navigation }) {
       return;
     }
 
-    if (!questaoId) {
-      Alert.alert('Erro', 'Quiz inválido. Por favor, gere novamente.');
-      return;
-    }
+    navigation.navigate('Home');
 
-    setLoading(true);
     try {
       const res = await axios.post(`${API_URL}/teste`, {
         aluno: usuarioLogado,
