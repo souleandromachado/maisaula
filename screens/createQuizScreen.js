@@ -20,6 +20,7 @@ export default function CriarQuizScreen({ navigation }) {
   const [questaoId, setQuestaoId] = useState('');
   const [loading, setLoading] = useState(false);
 
+
   const gerarQuiz = async () => {
     if (!tema.trim()) {
       Alert.alert('Erro', 'Informe o tema para gerar o quiz.');
@@ -27,10 +28,10 @@ export default function CriarQuizScreen({ navigation }) {
     }
     setLoading(true);
     try {
-      const res = await axios.post(`${API_URL}/resumo`, { tema });
+      const res = await axios.post(`${API_URL}/resumos`, { tema });
       setResumo(res.data.resumo);
       setPerguntas(res.data.perguntas);
-      setQuestaoId(res.data.id); // Guarda o ID do quiz
+      setQuestaoId(res.data._id);
       setQuizCriado(true);
       setResultado(null);
       setRespostasUsuario({});
@@ -55,6 +56,11 @@ export default function CriarQuizScreen({ navigation }) {
       return;
     }
 
+    if (!questaoId) {
+      Alert.alert('Erro', 'Quiz inválido. Por favor, gere novamente.');
+      return;
+    }
+
     setLoading(true);
     try {
       const res = await axios.post(`${API_URL}/teste`, {
@@ -62,11 +68,15 @@ export default function CriarQuizScreen({ navigation }) {
         questaoId,
         respostas: respostasArray,
       });
-      setResultado(res.data);
+
+      setLoading(false);
+      Alert.alert('Sucesso', 'Respostas enviadas com sucesso!');
+      navigation.navigate('Home');
     } catch (e) {
+      console.error('Erro ao enviar respostas:', e?.response?.data || e.message);
       Alert.alert('Erro', 'Falha ao enviar respostas.');
+      setLoading(false); // Garantir que pare o loading mesmo em erro
     }
-    setLoading(false);
   };
 
   const handleLogout = () => {

@@ -1,130 +1,208 @@
-import React, { useState, useEffect } from 'react';
-import { View, Text, TextInput, FlatList, StyleSheet, TouchableOpacity, ActivityIndicator } from 'react-native';
-import axios from 'axios';
-import { useNavigation } from '@react-navigation/native';
+import React, { useEffect, useState, useContext } from 'react';
+import { View, Text, FlatList, TouchableOpacity, Alert, StyleSheet } from 'react-native';
+import { useIsFocused } from '@react-navigation/native';
+import { fetchResumos, deleteResumo } from '../services/api';
+import { Ionicons } from '@expo/vector-icons';
+import { AuthContext } from './authContext';  // importe o contexto
 
-const API_URL = 'https://resumo-service-gz31.onrender.com';
-
-const HomeScreen = () => {
-  const navigation = useNavigation();
+const HomeScreen = ({ navigation }) => {
   const [posts, setPosts] = useState([]);
-  const [busca, setBusca] = useState('');
-  const [materiaSelecionada, setMateriaSelecionada] = useState('');
-  const [carregando, setCarregando] = useState(false);
+  const isFocused = useIsFocused();
+  const { setIsLogado, tipoUsuario } = useContext(AuthContext);  // pega o tipo do usuário
+
+  const carregarResumos = async () => {
+    try {
+      const resumos = await fetchResumos();
+      setPosts(resumos);
+    } catch (error) {
+      Alert.alert('Erro', 'Não foi possível carregar os resumos');
+    }
+  };
+
+  const confirmarExclusao = (_id) => {
+    Alert.alert(
+      'Confirmar',
+      'Tem certeza que deseja deletar este post?',
+      [
+        { text: 'Cancelar', style: 'cancel' },
+        {
+          text: 'Deletar',
+          style: 'destructive',
+          onPress: async () => {
+            try {
+              await deleteResumo(_id);
+              carregarResumos();
+            } catch (error) {
+              Alert.alert('Erro', 'Não foi possível deletar o post');
+            }
+          },
+        },
+      ]
+    );
+  };
 
   useEffect(() => {
-    const fetchPosts = async () => {
-      setCarregando(true);
-      try {
-        const res = await axios.get(`${API_URL}/resumos`);
-        setPosts(res.data);
-      } catch (error) {
-        console.error('Erro ao buscar os posts:', error);
-        setPosts([]);
-      }
-      setCarregando(false);
-    };
+    if (isFocused) {
+      carregarResumos();
+    }
+  }, [isFocused]);
 
-    fetchPosts();
-  }, []);
-
-  const materias = [...new Set(posts.map((post) => post.materia).filter(Boolean))];
-
-  const postsMateria = materiaSelecionada
-    ? posts.filter(
-        (post) => (post.materia || '').toLowerCase() === materiaSelecionada.toLowerCase()
-      )
-    : posts;
-
-  const postsFiltrados = postsMateria.filter((post) => {
-    const textoBusca = busca.toLowerCase();
-    return (
-      (post.titulo || '').toLowerCase().includes(textoBusca) ||
-      (post.autor || '').toLowerCase().includes(textoBusca) ||
-      (post.conteudo || '').toLowerCase().includes(textoBusca)
-    );
-  });
-
-  const renderItem = ({ item }) => (
-    <TouchableOpacity
-      style={styles.card}
-      onPress={() => navigation.navigate('Detalhes', { post: item })}
-    >
-      <Text style={styles.titulo}>{item.titulo}</Text>
-      <Text style={styles.autor}>{item.autor}</Text>
-      <Text numberOfLines={2} style={styles.conteudo}>{item.conteudo}</Text>
-    </TouchableOpacity>
-  );
+  function handleLogout() {
+    setIsLogado(false);
+  }
 
   return (
     <View style={styles.container}>
-      <TextInput
-        style={styles.input}
-        placeholder="Buscar por título, autor ou conteúdo"
-        value={busca}
-        onChangeText={setBusca}
-      />
-
-      <View style={styles.filtros}>
-        <TouchableOpacity onPress={() => setMateriaSelecionada('')}>
-          <Text style={[
-            styles.filtro,
-            materiaSelecionada === '' && styles.filtroSelecionado
-          ]}>
-            Todos
-          </Text>
+      <View style={styles.header}>
+        <Text style={styles.logo}>+Aula</Text>
+        <TouchableOpacity onPress={handleLogout} style={styles.btnSair}>
+          <Text style={styles.textoBtnSair}>Sair</Text>
         </TouchableOpacity>
-        {materias.map((materia) => (
-          <TouchableOpacity key={materia} onPress={() => setMateriaSelecionada(materia)}>
-            <Text style={[
-              styles.filtro,
-              materiaSelecionada === materia && styles.filtroSelecionado
-            ]}>
-              {materia}
-            </Text>
-          </TouchableOpacity>
-        ))}
       </View>
 
-      {carregando ? (
-        <ActivityIndicator size="large" color="#000" />
-      ) : (
-        <FlatList
-          data={postsFiltrados}
-          keyExtractor={(item) => item._id}
-          renderItem={renderItem}
-          contentContainerStyle={styles.lista}
-        />
+      <TouchableOpacity
+        style={styles.btnVoltar}
+        onPress={() => navigation.goBack()}
+      >
+        <Ionicons name="arrow-back" size={24} color="white" />
+        <Text style={styles.textoBtnVoltar}>Voltar</Text>
+      </TouchableOpacity>
+
+      {tipoUsuario === 'professor' && (
+        <TouchableOpacity
+          style={styles.btnCriar}
+          onPress={() => navigation.navigate('CriarQuiz')}
+        >
+          <Text style={styles.textoBtnCriar}>+ Nova Publicação</Text>
+        </TouchableOpacity>
       )}
+
+    <FlatList
+      data={posts}
+      keyExtractor={(item) => item._id}
+      renderItem={({ item }) => (
+        <TouchableOpacity
+          style={styles.postContainer}
+          onPress={() =>
+            navigation.navigate('Post', {
+              id: item._id,
+              tema: item.tema,
+              resumo: item.resumo,
+            })
+          }
+        >
+          <Text style={styles.postTitle}>{item.tema}</Text>
+          <Text style={styles.postContent}>{item.resumo}</Text>
+
+          {tipoUsuario === 'professor' && (
+            <View style={styles.iconRow}>
+              <TouchableOpacity
+                onPress={() =>
+                  navigation.navigate('EditarPost', {
+                    _id: item._id,
+                    tema: item.tema,
+                    resumo: item.resumo,
+                  })
+                }
+              >
+                <Ionicons name="create-outline" size={24} color="blue" style={styles.icon} />
+              </TouchableOpacity>
+
+              <TouchableOpacity onPress={() => confirmarExclusao(item._id)}>
+                <Ionicons name="trash-outline" size={24} color="red" style={styles.icon} />
+              </TouchableOpacity>
+            </View>
+          )}
+        </TouchableOpacity>
+      )}
+    />
+
     </View>
   );
 };
 
-const styles = StyleSheet.create({
-  container: { flex: 1, padding: 16, backgroundColor: '#fff' },
-  input: {
-    borderWidth: 1, borderColor: '#ccc', borderRadius: 8,
-    padding: 8, marginBottom: 12,
-  },
-  filtros: { flexDirection: 'row', flexWrap: 'wrap', marginBottom: 12 },
-  filtro: {
-    backgroundColor: '#eee', padding: 8,
-    borderRadius: 8, marginRight: 8, marginBottom: 8,
-  },
-  filtroSelecionado: {
-    backgroundColor: '#007bff', color: '#fff',
-  },
-  lista: { paddingBottom: 16 },
-  card: {
-    backgroundColor: '#f9f9f9', padding: 16,
-    borderRadius: 8, marginBottom: 12,
-    shadowColor: '#000', shadowOpacity: 0.1,
-    shadowOffset: { width: 0, height: 1 },
-    shadowRadius: 3, elevation: 2,
-  },
-  titulo: { fontSize: 16, fontWeight: 'bold' },
-  autor: { fontSize: 14, color: '#666', marginBottom: 4 },
-  conteudo: { fontSize: 14, color: '#333' },
-});
-
 export default HomeScreen;
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    padding: 20,
+    backgroundColor: '#F5E1C5',
+    paddingTop: 50,
+  },
+  btnCriar: {
+    backgroundColor: '#2496ED',
+    paddingVertical: 10,
+    borderRadius: 8,
+    marginBottom: 15,
+    alignItems: 'center',
+  },
+  textoBtnCriar: {
+    color: '#fff',
+    fontWeight: 'bold',
+    fontSize: 16,
+  },
+  postContainer: {
+    borderWidth: 1,
+    borderColor: '#ccc',
+    borderRadius: 10,
+    padding: 15,
+    marginBottom: 15,
+    backgroundColor: '#fff',
+  },
+  postTitle: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    marginBottom: 6,
+  },
+  postContent: {
+    fontSize: 14,
+    color: '#333',
+    marginBottom: 10,
+  },
+  iconRow: {
+    flexDirection: 'row',
+    justifyContent: 'flex-end',
+  },
+  icon: {
+    marginLeft: 12,
+  },
+  header: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 30,
+  },
+  logo: {
+    fontSize: 26,
+    fontWeight: 'bold',
+    color: '#000',
+  },
+  btnSair: {
+    backgroundColor: '#d9534f',
+    paddingVertical: 8,
+    paddingHorizontal: 15,
+    borderRadius: 8,
+  },
+  textoBtnSair: {
+    color: 'white',
+    fontWeight: 'bold',
+    fontSize: 16,
+  },
+  btnVoltar: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#00838F',
+    paddingVertical: 10,
+    paddingHorizontal: 15,
+    borderRadius: 8,
+    marginBottom: 15,
+    alignSelf: 'flex-start',
+  },
+  textoBtnVoltar: {
+    color: 'white',
+    fontWeight: 'bold',
+    fontSize: 16,
+    marginLeft: 6,
+  },
+});

@@ -4,7 +4,7 @@ import { AuthContext } from './authContext';
 import QuizScreen from './quizPage';
 
 export default function PostScreen({ route, navigation }) {
-  const { id, titulo, autor, conteudo, onDelete } = route.params;
+  const { id, tema, resumo } = route.params;
   const { setIsLogado } = useContext(AuthContext);
 
   useLayoutEffect(() => {
@@ -30,7 +30,7 @@ export default function PostScreen({ route, navigation }) {
           text: 'Deletar',
           style: 'destructive',
           onPress: () => {
-            onDelete(id);
+            onDelete(_id);
             navigation.goBack();
           },
         },
@@ -55,9 +55,8 @@ export default function PostScreen({ route, navigation }) {
         <Text style={styles.textoBtnVoltar}>← Voltar para postagens</Text>
       </TouchableOpacity>
 
-      <Text style={styles.titulo}>{titulo}</Text>
-      <Text style={styles.autor}>por {autor}</Text>
-      <Text style={styles.conteudo}>{conteudo}</Text>
+      <Text style={styles.title}>{tema}</Text>
+      <Text style={styles.content}>{resumo}</Text>
 
       <TouchableOpacity onPress={() => navigation.navigate('QuizScreen')} style={styles.btnQuiz}>
         <Text style={styles.textoBtnVoltar}>Fazer o quiz</Text>
@@ -137,5 +136,14 @@ const styles = StyleSheet.create({
     fontSize: 16,
     marginBottom: 10,
     alignSelf: 'center',
+  },
+  title: {
+    fontSize: 22,
+    fontWeight: 'bold',
+    marginBottom: 15
+  },
+  content: {
+    fontSize: 16,
+    lineHeight: 22
   },
 });

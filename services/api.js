@@ -22,11 +22,11 @@ export async function createResumo({ tema }) {
 }
 
 // EDITAR RESUMO
-export async function updateResumo(id, { titulo, conteudo, materia }) {
-  const res = await fetch(`${API_URL}/resumos/${id}`, {
+export async function updateResumo(_id, { titulo, conteudo, materia }) {
+  const res = await fetch(`${API_URL}/resumos/${_id}`, {
     method: 'PUT',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ titulo, conteudo, materia }),
+    body: JSON.stringify({ tema: titulo, resumo: conteudo, materia }),
   });
 
   if (!res.ok) {
@@ -37,8 +37,8 @@ export async function updateResumo(id, { titulo, conteudo, materia }) {
 }
 
 // DELETAR RESUMO
-export async function deleteResumo(id) {
-  const res = await fetch(`${API_URL}/resumos/${id}`, {
+export async function deleteResumo(_id) {
+  const res = await fetch(`${API_URL}/resumos/${_id}`, {
     method: 'DELETE',
   });
 
